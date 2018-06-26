@@ -1,0 +1,116 @@
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Saturday Morning Gifs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css" />
+</head>
+
+<body>
+    <button cartoon="Rugrats" class="gif">Rugrats</button>
+    <button cartoon="Recess" class="gif">Recess</button>
+    <button cartoon="Hey-Arnold" class="gif">Hey Arnold</button>
+    <button cartoon="Doug" class="gif">Doug</button>
+    <button cartoon="Scooby-Doo" class="gif">Scooby Doo</button>
+    <button cartoon="Garfield" class="gif">Garfield</button>
+    <button cartoon="Spongebob-Squarepants" class="gif">Spongebob Squarepants</button>
+    <button cartoon="Duck-Tales" class="gif">Duck Tales</button>
+    <hr>
+    <form>
+        <input type="text" id="cartoon-input">
+        <input id="find-cartoon" type="button" value="Search for a cartoon!">
+    </form>
+    <div id="newGifs">
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        //Array of Cartoons
+        var cartoons = [
+            "Rugrats",
+            "Recess",
+            "Hey-Arnold",
+            "Doug",
+            "Scooby-Doo",
+            "Garfield",
+            "Spongebob-Squarepants",
+            "Duck-Tales",
+        ];
+
+
+        //Allows the button clicked to be searched in the query
+        $("button").on("click", function () {
+            var cartoon = $(this).attr("cartoon");
+            var queryURL = "https://api.giphy.com/v1/gifs/random?api_key=OJbv0c99sQskZJUILbsqru5omZbk07Wm&tag=" + cartoon + "&limit=10";
+
+            //AJAX request using the query url
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            })
+                //Getting the data from the AJAX request
+                .then(function (response) {
+                    console.log(queryURL);
+                    console.log(response);
+                    console.log(cartoon);
+                    var results = response.data;
+
+
+                    //Creates a new div for each gif (at least in theory)
+                    for (var i = 0; i < results.length; i++) {
+
+                        var cartoonDiv = $("<div>");
+
+                        var p = $("<p>").text("Rating: " + results[i].rating);
+
+                        var cartoonImage = $("<img>");
+
+                        cartoonImage.attr("src", results[i].images.fixed_height.url);
+
+                        cartoonDiv.append(p);
+
+                        cartoonDiv.append(cartoonImage);
+                        $("#newGifs").prepend(cartoonDiv);
+                    }
+                })
+        })
+        $("#find-cartoon").on("click", function () {
+            var queryURL = "https://api.giphy.com/v1/gifs/random?api_key=OJbv0c99sQskZJUILbsqru5omZbk07Wm&tag=" + cartoon + "&limit=10";
+            var cartoon = $("#cartoon-input").val();
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            })
+                .then(function (response) {
+                    console.log(response);
+                    console.log(queryURL);
+                    console.log(cartoon);
+                    var results = response.data;
+                })
+
+        })
+
+        $(".gif").on("click", function () {
+            let clickedGif = $(this);
+            let state = clickedGif.attr("data-state");
+            let animated_url = clickedGif.attr("data-animate");
+            let still_url = clickedGif.attr("data-still");
+
+            if (state == "still") {
+                clickedGif.attr("src", animated_url);
+                clickedGif.attr("data-state", "animate");
+            }
+            else if (state == "animate") {
+                clickedGif.attr("src", still_url);
+                clickedGif.attr("data-state", "still")
+            }
+        })
+
+
+
+
+    </script>
+</body>
+
+</html>
