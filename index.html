@@ -8,107 +8,120 @@
 </head>
 
 <body>
-    <button cartoon="Rugrats" class="gif">Rugrats</button>
-    <button cartoon="Recess" class="gif">Recess</button>
-    <button cartoon="Hey-Arnold" class="gif">Hey Arnold</button>
-    <button cartoon="Doug" class="gif">Doug</button>
-    <button cartoon="Scooby-Doo" class="gif">Scooby Doo</button>
-    <button cartoon="Garfield" class="gif">Garfield</button>
-    <button cartoon="Spongebob-Squarepants" class="gif">Spongebob Squarepants</button>
-    <button cartoon="Duck-Tales" class="gif">Duck Tales</button>
-    <hr>
-    <form>
-        <input type="text" id="cartoon-input">
-        <input id="find-cartoon" type="button" value="Search for a cartoon!">
-    </form>
-    <div id="newGifs">
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <h1> Saturday Morning Cartoons!</h1>
+            <h6>Click on one of the buttons on the remote to make gifs appear on the TV. Click the gifs on the TV to animate!</h6>
+        </div>
     </div>
+    <div class="container">
+        <div class="row">
+            <div class="col col-md-8">
+                        <img class="img-fluid" src="http://pngimg.com/uploads/tv/tv_PNG39267.png" height="auto" width="600px" class="img-fluid" alt="Responsive image" class= "tv" >
+                <div id="newGifs" class="gif">
+                </div>
+            </div>
+            <div class="col col-md-4">
+                <div id="cartoonButtons" class="remote"></div>
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script type="text/javascript">
-        //Array of Cartoons
-        var cartoons = [
-            "Rugrats",
-            "Recess",
-            "Hey-Arnold",
-            "Doug",
-            "Scooby-Doo",
-            "Garfield",
-            "Spongebob-Squarepants",
-            "Duck-Tales",
-        ];
+        $(document).ready(function () {
+            //Array of Cartoons
+            var cartoons = [
+                "Rugrats",
+                "Recess",
+                "Hey Arnold",
+                "Doug",
+                "Scooby Doo",
+                "Garfield",
+                "Spongebob Squarepants",
+                "Duck Tales",
+                "Animaniacs",
+                "Cat Dog",
+                "Looney Tunes",
+            ];
+            console.log(cartoons);
 
+            //Maes buttons and adds to the page
+            function populateButtons(arrayToUse, classToAdd, areaToAdd) {
+                $(areaToAdd).empty();
 
-        //Allows the button clicked to be searched in the query
-        $("button").on("click", function () {
-            var cartoon = $(this).attr("cartoon");
-            var queryURL = "https://api.giphy.com/v1/gifs/random?api_key=OJbv0c99sQskZJUILbsqru5omZbk07Wm&tag=" + cartoon + "&limit=10";
-
-            //AJAX request using the query url
-            $.ajax({
-                url: queryURL,
-                method: "GET"
-            })
-                //Getting the data from the AJAX request
-                .then(function (response) {
-                    console.log(queryURL);
-                    console.log(response);
-                    console.log(cartoon);
-                    var results = response.data;
-
-
-                    //Creates a new div for each gif (at least in theory)
-                    for (var i = 0; i < results.length; i++) {
-
-                        var cartoonDiv = $("<div>");
-
-                        var p = $("<p>").text("Rating: " + results[i].rating);
-
-                        var cartoonImage = $("<img>");
-
-                        cartoonImage.attr("src", results[i].images.fixed_height.url);
-
-                        cartoonDiv.append(p);
-
-                        cartoonDiv.append(cartoonImage);
-                        $("#newGifs").prepend(cartoonDiv);
-                    }
-                })
-        })
-        $("#find-cartoon").on("click", function () {
-            var queryURL = "https://api.giphy.com/v1/gifs/random?api_key=OJbv0c99sQskZJUILbsqru5omZbk07Wm&tag=" + cartoon + "&limit=10";
-            var cartoon = $("#cartoon-input").val();
-            $.ajax({
-                url: queryURL,
-                method: "GET"
-            })
-                .then(function (response) {
-                    console.log(response);
-                    console.log(queryURL);
-                    console.log(cartoon);
-                    var results = response.data;
-                })
-
-        })
-
-        $(".gif").on("click", function () {
-            let clickedGif = $(this);
-            let state = clickedGif.attr("data-state");
-            let animated_url = clickedGif.attr("data-animate");
-            let still_url = clickedGif.attr("data-still");
-
-            if (state == "still") {
-                clickedGif.attr("src", animated_url);
-                clickedGif.attr("data-state", "animate");
+                for (var i = 0; i < arrayToUse.length; i++) {
+                    var a = $("<button class=rounded-circle>");
+                    a.addClass(classToAdd);
+                    a.attr("data-type", arrayToUse[i]);
+                    a.text(arrayToUse[i]);
+                    $(areaToAdd).append(a);
+                }
             }
-            else if (state == "animate") {
-                clickedGif.attr("src", still_url);
-                clickedGif.attr("data-state", "still")
-            }
-        })
+
+            $(document).on("click", ".cartoonButton", function () {
+                $("#newGifs").empty();
+                $(".cartoonButton").removeClass("active");
+                $(this).addClass("active");
+
+                var cartoon = $(this).attr("data-type");
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + cartoon + "&api_key=OJbv0c99sQskZJUILbsqru5omZbk07Wm&limit=1&offset=3";
 
 
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                })
+                    //Getting the data from the AJAX request
+                    .then(function (response) {
+                        var results = response.data;
+                        console.log(response);
 
+                        //Creates a new div for each gif (at least in theory)
+                        for (var i = 0; i < results.length; i++) {
+
+                            var cartoonDiv = $("<div>");
+
+                            var p = $("<p>").text(" ");
+                            var animated = results[i].images.fixed_height.url;
+                            var still = results[i].images.fixed_height_still.url;
+                            var cartoonImage = $("<img>");
+                            cartoonImage.attr("src", still);
+                            cartoonImage.attr("data-still", still);
+                            cartoonImage.attr("data-animate", animated);
+                            cartoonImage.attr("data-state", "still");
+                            cartoonImage.addClass("cartoonImage");
+
+                            cartoonDiv.append(p);
+                            cartoonDiv.append(cartoonImage);
+
+                            $("#newGifs").append(cartoonDiv);
+                        }
+                    });
+            });
+            $(document).on("click", ".cartoonImage", function () {
+                var state = $(this).attr("data-state");
+
+                if (state === "still") {
+                    $(this).attr("src", $(this).attr("data-animate"));
+                    $(this).attr("data-state", "still");
+                }
+            });
+
+
+            $("#newGifs").on("click", function (event) {
+                event.preventDefault();
+                var newCartoon = $("input").eq(0).val();
+                if (newCartoon.length > 2) {
+                    cartoons.push(newCartoon);
+                }
+                populateButtons(cartoons, "cartoonButton", "#cartoonButtons");
+
+
+            });
+            populateButtons(cartoons, "cartoonButton", "#cartoonButtons");
+        });
 
     </script>
 </body>
